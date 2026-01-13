@@ -66,6 +66,8 @@ alias l='ls -CF'
 if [[ $commands[kubectl] ]]; then
     source <(kubectl completion zsh)
     alias k=kubectl
+    alias kc='kubectx'
+    alias kn='kubens'
     complete -F __start_kubectl k
 fi
 
