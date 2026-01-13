@@ -7,6 +7,7 @@ Personal dotfiles for Unix/Linux environments with automatic setup for GitHub Co
 - **zsh** configuration with oh-my-zsh (bureau theme)
 - **vim** setup with vim-plug and plugins
 - **tmux** configuration with vi-mode
+- **fd** (fd-find) fast file finder with proper symlink for Ubuntu/Debian
 - **k9s** Kubernetes CLI with Nord theme (auto-installed in Codespaces)
 - **uv** Python package manager (auto-installed in Codespaces)
 - **Kubernetes tools** aliases and completions (kubectl, helm, kubectx, kubens)
@@ -56,13 +57,16 @@ zsh
 ## What's Included
 
 ### Shell Configuration
-- oh-my-zsh with plugins: git, github, docker, golang, colorize, colored-man-pages
+- oh-my-zsh with plugins: git, github, docker, golang, terraform, colorize, colored-man-pages
 - zsh-autosuggestions and zsh-syntax-highlighting
 - kubectl completions and aliases: `k` (kubectl), `kc` (kubectx), `kn` (kubens)
 - helm completion with `h` alias
 - kube_ps1 prompt integration (shows Kubernetes context in prompt)
 - krew plugin manager support
+- Terraform, terragrunt completions and aliases (e.g., `tf`, `tfa`, `tfp`, `tfi`)
+- Python tooling: uv and uvx completions
 - FZF fuzzy finder with key bindings (Ctrl+R for history, Ctrl+T for files, Alt+C for cd)
+- fd (fast file finder, symlinked from fdfind on Ubuntu/Debian)
 - Custom function: `cht` for accessing cht.sh
 
 ### Editor Configuration
@@ -76,6 +80,12 @@ zsh
 - Mouse support enabled
 - Custom status bar with pomo integration
 - Reload config: `prefix + r`
+
+### Development Tools (Auto-installed)
+- **Kubernetes**: k9s (CLI dashboard), kubectx, kube-ps1
+- **Infrastructure as Code**: Terraform, terragrunt, tflint
+- **Python**: uv (package manager)
+- **CLI Tools**: fd (file finder), fzf (fuzzy finder), ripgrep, gh (GitHub CLI), shellcheck, yq
 
 ## Customization
 

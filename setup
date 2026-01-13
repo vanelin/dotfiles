@@ -8,6 +8,7 @@ echo "Setting up dotfiles..."
 export XDG_CONFIG_HOME="$HOME"/.config
 mkdir -p "$XDG_CONFIG_HOME"/bash
 mkdir -p "$XDG_CONFIG_HOME"/k9s
+mkdir -p "$HOME"/.local/bin
 
 # Create symbolic links
 echo "Creating symbolic links..."
@@ -93,6 +94,12 @@ if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/n
     sudo apt-get update
     sudo apt-get install -y ripgrep gh gcc g++ unzip fd-find fzf curl apt-transport-https ca-certificates gnupg vim kubectx tmux shellcheck yq || true
 
+    # Create symlink for fd (fd-find package installs as fdfind)
+    if command -v fdfind &> /dev/null && ! command -v fd &> /dev/null; then
+        echo "Creating symlink for fd..."
+        ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+    fi
+
     # # Install kubectl if not already installed
     # if ! command -v kubectl &> /dev/null; then
     #     echo "Installing kubectl for $ARCH..."
@@ -121,9 +128,9 @@ if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/n
     if ! command -v k9s &> /dev/null; then
         echo "Installing k9s..."
         ARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
-        wget -q https://github.com/derailed/k9s/releases/latest/download/k9s_linux_${ARCH}.deb
-        sudo apt install -y ./k9s_linux_${ARCH}.deb
-        rm k9s_linux_${ARCH}.deb
+        wget -q "https://github.com/derailed/k9s/releases/latest/download/k9s_linux_${ARCH}.deb"
+        sudo apt install -y "./k9s_linux_${ARCH}.deb"
+        rm "k9s_linux_${ARCH}.deb"
         echo "k9s installed: $(k9s version --short 2>/dev/null || k9s version)"
     fi
 

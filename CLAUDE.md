@@ -16,12 +16,13 @@ This is a personal dotfiles repository for managing Unix/Linux configuration fil
 ```
 
 This script will:
-- Create necessary directories (`$HOME/.config/bash`, `$HOME/.config/k9s`)
+- Create necessary directories (`$HOME/.config/bash`, `$HOME/.config/k9s`, `$HOME/.local/bin`)
 - Create symbolic links for configuration files
 - Install oh-my-zsh and required plugins (zsh-autosuggestions, zsh-syntax-highlighting, kube-ps1)
 - Install vim-plug and Vim plugins automatically
 - Install Hack Nerd Font for terminal
 - Install required packages via apt (ripgrep, gh, gcc, g++, unzip, fd-find, fzf, kubectx)
+- Create `fd` symlink for `fdfind` command (Ubuntu/Debian compatibility)
 - Install development tools:
   - k9s (Kubernetes CLI)
   - uv (Python package manager)
