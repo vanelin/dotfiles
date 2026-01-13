@@ -63,23 +63,37 @@ alias la='ls -lhFtA'
 alias l='ls -CF'
 
 # Enable autocompletion kubectl
-[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
+if [[ $commands[kubectl] ]]; then
+    source <(kubectl completion zsh)
+    alias k=kubectl
+    complete -F __start_kubectl k
+fi
 
-# Create alias k for kubectl and enable autocompletion
-alias k=kubectl
-complete -F __start_kubectl k
+# Enable autocompletion helm
+if [[ $commands[helm] ]]; then
+    source <(helm completion zsh)
+    alias h=helm
+    complete -F __start_helm h
+fi
 
-# Enable autocompletion
-[[ $commands[helm] ]] && source <(helm completion zsh)
-
-# Create h alias for helm and enable autocompletion
-alias h=helm
-complete -F __start_helm h
-
-# Enable crew plugin manager for kubectl
+# Enable krew plugin manager for kubectl
 export PATH="${PATH}:${HOME}/.krew/bin"
 
-PROMPT='$(kube_ps1)'$PROMPT
+# Enable kube_ps1 if available
+if [ -f "$HOME/.oh-my-zsh/custom/plugins/kube-ps1/kube-ps1.sh" ]; then
+    source "$HOME/.oh-my-zsh/custom/plugins/kube-ps1/kube-ps1.sh"
+    PROMPT='$(kube_ps1)'$PROMPT
+fi
 
-# Enable utocomplation
+# Enable autocompletion
 [[ $commands[minikube] ]] && source <(minikube completion zsh)
+
+# FZF integration
+if [ -f ~/.fzf.zsh ]; then
+    # FZF installed via git
+    source ~/.fzf.zsh
+elif [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
+    # FZF installed via apt (Debian/Ubuntu)
+    source /usr/share/doc/fzf/examples/key-bindings.zsh
+    source /usr/share/doc/fzf/examples/completion.zsh
+fi

@@ -1,0 +1,115 @@
+#!/bin/bash
+
+set -e
+
+echo "Setting up dotfiles..."
+
+# Create directories
+export XDG_CONFIG_HOME="$HOME"/.config
+mkdir -p "$XDG_CONFIG_HOME"/bash
+mkdir -p "$XDG_CONFIG_HOME"/k9s
+
+# Create symbolic links
+echo "Creating symbolic links..."
+ln -sf "$PWD/k9s/skin.yml" "$XDG_CONFIG_HOME"/k9s/skin.yml
+ln -sf "$PWD/.tmux.conf" "$HOME"/.tmux.conf
+ln -sf "$PWD/.vimrc" "$HOME"/.vimrc
+ln -sf "$PWD/.zshrc" "$HOME"/.zshrc
+ln -sf "$PWD/.zshenv" "$HOME"/.zshenv
+ln -sf "$PWD/.zprofile" "$HOME"/.zprofile
+
+# Install oh-my-zsh if not already installed
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    echo "Installing oh-my-zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Install zsh plugins
+echo "Installing zsh plugins..."
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
+# zsh-autosuggestions
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+fi
+
+# zsh-syntax-highlighting
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+fi
+
+# kube-ps1 (optional, for Kubernetes prompt)
+if [ ! -d "$ZSH_CUSTOM/plugins/kube-ps1" ]; then
+    echo "Installing kube-ps1 plugin..."
+    git clone https://github.com/jonmosco/kube-ps1.git "$ZSH_CUSTOM/plugins/kube-ps1"
+fi
+
+# Install vim-plug if not already installed
+if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
+    echo "Installing vim-plug..."
+    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+fi
+
+# Install vim plugins
+echo "Installing vim plugins..."
+vim +PlugInstall +qall || true
+
+# Install Hack Nerd Font if not already installed
+if [ ! -d "$HOME/.local/share/fonts" ] || [ ! -f "$HOME/.local/share/fonts/Hack Regular Nerd Font Complete.ttf" ]; then
+    echo "Installing Hack Nerd Font..."
+    mkdir -p "$HOME/.local/share/fonts"
+    cd "$HOME/.local/share/fonts"
+    curl -fLo "Hack Regular Nerd Font Complete.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Hack/Regular/HackNerdFont-Regular.ttf
+    curl -fLo "Hack Bold Nerd Font Complete.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Hack/Bold/HackNerdFont-Bold.ttf
+    curl -fLo "Hack Italic Nerd Font Complete.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Hack/Italic/HackNerdFont-Italic.ttf
+    curl -fLo "Hack Bold Italic Nerd Font Complete.ttf" \
+        https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Hack/BoldItalic/HackNerdFont-BoldItalic.ttf
+    fc-cache -fv || true
+    cd -
+fi
+
+# Detect system architecture
+ARCH=$(uname -m)
+case $ARCH in
+    x86_64)
+        ARCH="amd64"
+        ;;
+    aarch64|arm64)
+        ARCH="arm64"
+        ;;
+    *)
+        echo "Warning: Unknown architecture $ARCH, defaulting to amd64"
+        ARCH="amd64"
+        ;;
+esac
+
+# Install packages (optional, skip if not sudo or packages already installed)
+if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/null; then
+    echo "Installing apt packages..."
+    sudo apt-get update
+    sudo apt-get install -y ripgrep gh gcc g++ unzip fd-find fzf curl apt-transport-https ca-certificates gnupg || true
+
+    # Install kubectl if not already installed
+    if ! command -v kubectl &> /dev/null; then
+        echo "Installing kubectl for $ARCH..."
+        KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+        curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
+        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        rm kubectl
+        echo "kubectl installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
+    fi
+
+    # Install helm if not already installed
+    if ! command -v helm &> /dev/null; then
+        echo "Installing helm..."
+        curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
+        echo "helm installed: $(helm version --short)"
+    fi
+fi
+
+echo "Dotfiles setup complete!"
+echo "Run 'zsh' or restart your terminal to apply changes"
