@@ -91,7 +91,7 @@ esac
 if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/null; then
     echo "Installing apt packages..."
     sudo apt-get update
-    sudo apt-get install -y ripgrep gh gcc g++ unzip fd-find fzf curl apt-transport-https ca-certificates gnupg vim kubectx tmux || true
+    sudo apt-get install -y ripgrep gh gcc g++ unzip fd-find fzf curl apt-transport-https ca-certificates gnupg vim kubectx tmux shellcheck || true
 
     # # Install kubectl if not already installed
     # if ! command -v kubectl &> /dev/null; then
