@@ -114,10 +114,10 @@ fi
 # Apply VS Code settings if running in Codespaces
 if [ -n "$CODESPACES" ]; then
     echo "Applying VS Code settings for Codespaces..."
-    mkdir -p "$HOME/.vscode-remote/data/Machine"
+    mkdir -p "$HOME/.vscode-remote/data/User"
     if [ -f "$PWD/.vscode-settings.json" ]; then
-        cp "$PWD/.vscode-settings.json" "$HOME/.vscode-remote/data/Machine/settings.json"
-        echo "VS Code settings applied"
+        cp "$PWD/.vscode-settings.json" "$HOME/.vscode-remote/data/User/settings.json"
+        echo "VS Code settings applied to User settings"
     fi
 fi
 

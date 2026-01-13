@@ -34,9 +34,7 @@ This script will:
 
 The setup script automatically detects Codespaces environment and applies VS Code settings from `.vscode-settings.json`.
 
-**Alternative: Create Codespace from this repository**
-
-The repository includes `.devcontainer/devcontainer.json` configuration for testing dotfiles directly.
+**Note:** Each project should have its own `.devcontainer/devcontainer.json` for project-specific VS Code extensions and settings. Dotfiles provide only base configuration.
 
 **Manual installation in Codespaces or remote environments:**
 ```bash
