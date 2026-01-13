@@ -91,24 +91,24 @@ esac
 if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/null; then
     echo "Installing apt packages..."
     sudo apt-get update
-    sudo apt-get install -y ripgrep gh gcc g++ unzip fd-find fzf curl apt-transport-https ca-certificates gnupg || true
+    sudo apt-get install -y ripgrep gh gcc g++ unzip fd-find fzf curl apt-transport-https ca-certificates gnupg vim || true
 
-    # Install kubectl if not already installed
-    if ! command -v kubectl &> /dev/null; then
-        echo "Installing kubectl for $ARCH..."
-        KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
-        curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
-        sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-        rm kubectl
-        echo "kubectl installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
-    fi
+    # # Install kubectl if not already installed
+    # if ! command -v kubectl &> /dev/null; then
+    #     echo "Installing kubectl for $ARCH..."
+    #     KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
+    #     curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
+    #     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+    #     rm kubectl
+    #     echo "kubectl installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
+    # fi
 
-    # Install helm if not already installed
-    if ! command -v helm &> /dev/null; then
-        echo "Installing helm..."
-        curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
-        echo "helm installed: $(helm version --short)"
-    fi
+    # # Install helm if not already installed
+    # if ! command -v helm &> /dev/null; then
+    #     echo "Installing helm..."
+    #     curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
+    #     echo "helm installed: $(helm version --short)"
+    # fi
 fi
 
 echo "Dotfiles setup complete!"
