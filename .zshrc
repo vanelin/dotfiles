@@ -90,6 +90,14 @@ fi
 # Enable autocompletion
 [[ $commands[minikube] ]] && source <(minikube completion zsh)
 
+# Enable uv and uvx completions
+if [[ $commands[uv] ]]; then
+    eval "$(uv generate-shell-completion zsh)"
+fi
+if [[ $commands[uvx] ]]; then
+    eval "$(uvx --generate-shell-completion zsh)"
+fi
+
 # FZF integration
 if [ -f ~/.fzf.zsh ]; then
     # FZF installed via git
