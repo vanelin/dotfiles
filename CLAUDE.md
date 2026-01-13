@@ -32,9 +32,10 @@ This script will:
 3. Select this repository
 4. Create any Codespace - dotfiles will be installed automatically
 
-The setup script automatically detects Codespaces environment and applies VS Code settings from `.vscode-settings.json`.
-
-**Note:** Each project should have its own `.devcontainer/devcontainer.json` for project-specific VS Code extensions and settings. Dotfiles provide only base configuration.
+**VS Code Configuration:**
+- Use Settings Sync (built-in VS Code feature) to synchronize settings, extensions, and keybindings across all Codespaces
+- For project-specific extensions and settings, create `.devcontainer/devcontainer.json` in each project repository
+- Dotfiles handle only shell and terminal configuration (zsh, vim, tmux, kubectl, helm)
 
 **Manual installation in Codespaces or remote environments:**
 ```bash
