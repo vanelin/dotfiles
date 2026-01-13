@@ -5,7 +5,7 @@
 
 set -e
 
-DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/ivan-voloboyev/ivan-dotfiles.git}"
+DOTFILES_REPO="${DOTFILES_REPO:-https://github.com/vanelin/dotfiles.git}"
 DOTFILES_DIR="$HOME/.dotfiles"
 
 echo "Installing dotfiles from $DOTFILES_REPO"

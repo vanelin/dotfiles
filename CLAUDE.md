@@ -40,12 +40,12 @@ The repository includes `.devcontainer/devcontainer.json` configuration for test
 
 **Manual installation in Codespaces or remote environments:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/USERNAME/REPO/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/vanelin/dotfiles/main/install.sh | bash
 ```
 
 Or clone and run setup:
 ```bash
-git clone https://github.com/USERNAME/REPO.git ~/.dotfiles
+git clone https://github.com/vanelin/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup
 ```

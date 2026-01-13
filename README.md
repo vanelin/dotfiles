@@ -32,7 +32,7 @@ zsh
 ### Local Installation
 
 ```bash
-git clone https://github.com/USERNAME/REPO.git ~/.dotfiles
+git clone https://github.com/vanelin/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup
 ```
@@ -45,7 +45,7 @@ zsh
 ### Remote Installation
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/USERNAME/REPO/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/vanelin/dotfiles/main/install.sh | bash
 cd ~/.dotfiles
 zsh
 ```
