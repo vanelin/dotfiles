@@ -1,0 +1,15 @@
+{
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "workbench.colorTheme": "GitHub Dark Dimmed",
+  "files.exclude": {
+    "**/.*": false
+  },
+  "editor.fontSize": 14,
+  "editor.fontFamily": "'Hack Nerd Font Mono', 'Hack Nerd Font', 'Droid Sans Mono', 'monospace', monospace",
+  "editor.fontLigatures": true,
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontFamily": "'Hack Nerd Font Mono', 'Hack Nerd Font', 'Droid Sans Mono', 'monospace', monospace",
+  "terminal.integrated.fontLigatures.enabled": true,
+  "debug.console.fontSize": 13,
+  "debug.console.fontFamily": "'Hack Nerd Font Mono', 'Hack Nerd Font', 'Droid Sans Mono', 'monospace', monospace"
+}

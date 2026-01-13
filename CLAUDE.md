@@ -25,7 +25,18 @@ This script will:
 
 ### GitHub Codespaces Setup
 
-The repository includes `.devcontainer/devcontainer.json` configuration that automatically runs the setup script when creating a new Codespace.
+**Recommended: Use GitHub Dotfiles Settings**
+
+1. Go to https://github.com/settings/codespaces
+2. Enable "Automatically install dotfiles"
+3. Select this repository
+4. Create any Codespace - dotfiles will be installed automatically
+
+The setup script automatically detects Codespaces environment and applies VS Code settings from `.vscode-settings.json`.
+
+**Alternative: Create Codespace from this repository**
+
+The repository includes `.devcontainer/devcontainer.json` configuration for testing dotfiles directly.
 
 **Manual installation in Codespaces or remote environments:**
 ```bash

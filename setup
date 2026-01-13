@@ -111,5 +111,15 @@ if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/n
     fi
 fi
 
+# Apply VS Code settings if running in Codespaces
+if [ -n "$CODESPACES" ]; then
+    echo "Applying VS Code settings for Codespaces..."
+    mkdir -p "$HOME/.vscode-remote/data/Machine"
+    if [ -f "$PWD/.vscode-settings.json" ]; then
+        cp "$PWD/.vscode-settings.json" "$HOME/.vscode-remote/data/Machine/settings.json"
+        echo "VS Code settings applied"
+    fi
+fi
+
 echo "Dotfiles setup complete!"
 echo "Run 'zsh' or restart your terminal to apply changes"

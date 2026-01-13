@@ -15,8 +15,16 @@ Personal dotfiles for Unix/Linux environments with automatic setup for GitHub Co
 
 ### GitHub Codespaces
 
-This repository automatically sets up your environment when you create a new Codespace. After the setup completes, run:
+**Recommended Setup:**
 
+1. Go to [GitHub Codespaces Settings](https://github.com/settings/codespaces)
+2. Enable "Automatically install dotfiles"
+3. Select your dotfiles repository
+4. Create any Codespace from any project - dotfiles will install automatically
+
+VS Code settings (theme, fonts, extensions) are applied automatically when setup runs in Codespaces.
+
+After setup completes, run:
 ```bash
 zsh
 ```
@@ -80,6 +88,7 @@ All configuration files are symlinked from this repository. To customize:
 - `.vimrc` - vim configuration
 - `.tmux.conf` - tmux configuration
 - `k9s/skin.yml` - k9s Nord theme
+- `.vscode-settings.json` - VS Code settings for Codespaces
 - `setup` - Main installation script
 - `install.sh` - Remote installation script
-- `.devcontainer/devcontainer.json` - GitHub Codespaces configuration
+- `.devcontainer/devcontainer.json` - Dev container configuration (for testing)
