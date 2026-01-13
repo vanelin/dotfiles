@@ -30,6 +30,8 @@ plugins=(
     zsh-syntax-highlighting
     docker
     terraform
+    aws
+    tmux
 )
 
 source $ZSH/oh-my-zsh.sh
