@@ -28,7 +28,9 @@ plugins=(
     colored-man-pages
     zsh-autosuggestions
     zsh-syntax-highlighting
-    docker)
+    docker
+    terraform
+)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -96,6 +98,11 @@ if [[ $commands[uv] ]]; then
 fi
 if [[ $commands[uvx] ]]; then
     eval "$(uvx --generate-shell-completion zsh)"
+fi
+
+# Enable k9s completion
+if [[ $commands[k9s] ]]; then
+    source <(k9s completion zsh)
 fi
 
 # FZF integration

@@ -21,8 +21,14 @@ This script will:
 - Install oh-my-zsh and required plugins (zsh-autosuggestions, zsh-syntax-highlighting, kube-ps1)
 - Install vim-plug and Vim plugins automatically
 - Install Hack Nerd Font for terminal
-- Install required packages via apt (ripgrep, gh, gcc, g++, unzip, fd-find, fzf)
-- In Codespaces: install k9s and uv (Python package manager)
+- Install required packages via apt (ripgrep, gh, gcc, g++, unzip, fd-find, fzf, kubectx)
+- Install development tools:
+  - k9s (Kubernetes CLI)
+  - uv (Python package manager)
+  - Terraform (Infrastructure as Code tool)
+  - tflint (Terraform linter)
+  - Terragrunt (Terraform wrapper)
+- Configure zsh completions for installed tools
 
 **Note:** kubectl and helm can be installed via devcontainer features or manually. Dotfiles provide shell aliases and completions for them.
 
@@ -67,15 +73,22 @@ zsh
 - `.zprofile` - Sources `.zshrc` on login
 
 **Key shell features:**
-- oh-my-zsh with plugins: golang, git, github, colorize, colored-man-pages, zsh-autosuggestions, zsh-syntax-highlighting, docker
-- Kubernetes prompt integration with `kube_ps1` (automatically enabled if installed)
-- kubectl completions and aliases: `k` (kubectl), `kc` (kubectx), `kn` (kubens)
-- helm completion with `h` alias (if helm is available)
-- krew plugin manager enabled (`$HOME/.krew/bin` in PATH)
+- oh-my-zsh with plugins: golang, git, github, colorize, colored-man-pages, zsh-autosuggestions, zsh-syntax-highlighting, docker, terraform
+- Kubernetes tooling:
+  - Kubernetes prompt integration with `kube_ps1` (automatically enabled if installed)
+  - kubectl completions and aliases: `k` (kubectl), `kc` (kubectx), `kn` (kubens)
+  - helm completion with `h` alias (if helm is available)
+  - k9s completion (if k9s is installed)
+  - krew plugin manager enabled (`$HOME/.krew/bin` in PATH)
+- Infrastructure as Code tools:
+  - Terraform completion and aliases via oh-my-zsh plugin (e.g., `tf`, `tfa`, `tfp`, `tfi`)
+  - Terragrunt completion (if terragrunt is installed)
+- Python tooling:
+  - uv and uvx completions (if uv is installed)
 - FZF integration with key bindings (Ctrl+R, Ctrl+T, Alt+C)
 - Custom function: `cht` for accessing cht.sh (e.g., `cht python/list`)
 
-**Note:** The shell configuration gracefully handles missing commands (kubectl, helm, kube_ps1, minikube). If these tools are not installed, the related features will be skipped without errors.
+**Note:** The shell configuration gracefully handles missing commands (kubectl, helm, kube_ps1, minikube, k9s, terraform, terragrunt, uv). If these tools are not installed, the related features will be skipped without errors.
 
 ### Editor Configuration
 - `.vimrc` - Vim configuration with vim-plug plugins (indentLine, vim-polyglot)
