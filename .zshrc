@@ -32,6 +32,9 @@ plugins=(
     terraform
     aws
     tmux
+    gh
+    fzf
+    uv
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -105,14 +108,4 @@ fi
 # Enable k9s completion
 if [[ $commands[k9s] ]]; then
     source <(k9s completion zsh)
-fi
-
-# FZF integration
-if [ -f ~/.fzf.zsh ]; then
-    # FZF installed via git
-    source ~/.fzf.zsh
-elif [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]; then
-    # FZF installed via apt (Debian/Ubuntu)
-    source /usr/share/doc/fzf/examples/key-bindings.zsh
-    source /usr/share/doc/fzf/examples/completion.zsh
 fi
