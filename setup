@@ -109,6 +109,23 @@ if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/n
     #     curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
     #     echo "helm installed: $(helm version --short)"
     # fi
+
+    # Install uv (Python package manager) if not already installed
+    if ! command -v uv &> /dev/null; then
+        echo "Installing uv..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        echo "uv installed (restart shell to use): $(~/.local/bin/uv --version 2>/dev/null || echo 'installed')"
+    fi
+
+    # # Install k9s if not already installed
+    # if ! command -v k9s &> /dev/null; then
+    #     echo "Installing k9s..."
+    #     ARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
+    #     wget -q https://github.com/derailed/k9s/releases/latest/download/k9s_linux_${ARCH}.deb
+    #     sudo apt install -y ./k9s_linux_${ARCH}.deb
+    #     rm k9s_linux_${ARCH}.deb
+    #     echo "k9s installed: $(k9s version --short 2>/dev/null || k9s version)"
+    # fi
 fi
 
 echo "Dotfiles setup complete!"

@@ -20,8 +20,11 @@ This script will:
 - Create symbolic links for configuration files
 - Install oh-my-zsh and required plugins (zsh-autosuggestions, zsh-syntax-highlighting, kube-ps1)
 - Install vim-plug and Vim plugins automatically
+- Install Hack Nerd Font for terminal
 - Install required packages via apt (ripgrep, gh, gcc, g++, unzip, fd-find, fzf)
-- Install kubectl and helm (automatically detects architecture: amd64/arm64)
+- In Codespaces: install k9s and uv (Python package manager)
+
+**Note:** kubectl and helm can be installed via devcontainer features or manually. Dotfiles provide shell aliases and completions for them.
 
 ### GitHub Codespaces Setup
 
@@ -66,9 +69,10 @@ zsh
 **Key shell features:**
 - oh-my-zsh with plugins: golang, git, github, colorize, colored-man-pages, zsh-autosuggestions, zsh-syntax-highlighting, docker
 - Kubernetes prompt integration with `kube_ps1` (automatically enabled if installed)
-- kubectl completion with `k` alias (if kubectl is available)
+- kubectl completions and aliases: `k` (kubectl), `kc` (kubectx), `kn` (kubens)
 - helm completion with `h` alias (if helm is available)
 - krew plugin manager enabled (`$HOME/.krew/bin` in PATH)
+- FZF integration with key bindings (Ctrl+R, Ctrl+T, Alt+C)
 - Custom function: `cht` for accessing cht.sh (e.g., `cht python/list`)
 
 **Note:** The shell configuration gracefully handles missing commands (kubectl, helm, kube_ps1, minikube). If these tools are not installed, the related features will be skipped without errors.

@@ -7,8 +7,9 @@ Personal dotfiles for Unix/Linux environments with automatic setup for GitHub Co
 - **zsh** configuration with oh-my-zsh (bureau theme)
 - **vim** setup with vim-plug and plugins
 - **tmux** configuration with vi-mode
-- **k9s** Nord theme for Kubernetes CLI
-- **Kubernetes tools** auto-installation and configuration (kubectl, helm, krew)
+- **k9s** Kubernetes CLI with Nord theme (auto-installed in Codespaces)
+- **uv** Python package manager (auto-installed in Codespaces)
+- **Kubernetes tools** aliases and completions (kubectl, helm, kubectx, kubens)
 - **Multi-architecture support** (amd64/arm64)
 
 ## Quick Start
@@ -55,13 +56,14 @@ zsh
 ## What's Included
 
 ### Shell Configuration
-- oh-my-zsh with plugins: git, github, docker, golang
+- oh-my-zsh with plugins: git, github, docker, golang, colorize, colored-man-pages
 - zsh-autosuggestions and zsh-syntax-highlighting
-- kubectl/helm automatic installation and completions
-- kube_ps1 prompt integration (Kubernetes context in prompt)
+- kubectl completions and aliases: `k` (kubectl), `kc` (kubectx), `kn` (kubens)
+- helm completion with `h` alias
+- kube_ps1 prompt integration (shows Kubernetes context in prompt)
 - krew plugin manager support
+- FZF fuzzy finder with key bindings (Ctrl+R for history, Ctrl+T for files, Alt+C for cd)
 - Custom function: `cht` for accessing cht.sh
-- Multi-architecture support (amd64/arm64 auto-detection)
 
 ### Editor Configuration
 - vim with vim-plug
