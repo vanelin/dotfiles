@@ -15,6 +15,10 @@ ZSH_THEME="bureau"
 # see 'man strftime' for details.
 HIST_STAMPS="dd.mm.yyyy"
 
+# History settings
+HISTSIZE=2000
+SAVEHIST=2000
+
 # Which plugins would you like to load?
 # Standard plugins can be found in ~/.oh-my-zsh/plugins/*
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
