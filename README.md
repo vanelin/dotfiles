@@ -38,7 +38,8 @@ Start `zsh` afterward. To retry failed optional installs, rerun `bash setup` fro
   Shortcuts include `k` (kubectl), `h` (Helm) and `tf` (OpenTofu).
 - **Vim and tmux:** syntax plugins, persistent undo, mouse support and vi-style copy mode.
 - **k9s:** Nord skin.
-- **CLI tools:** ripgrep, fd, gh, yq, shellcheck, kubectx, uv, k9s, tflint, latest fzf and tenv.
+- **asciinema:** records zsh sessions, idle time capped at 2s.
+- **CLI tools:** ripgrep, fd, gh, yq, shellcheck, kubectx, uv, k9s, tflint, asciinema, latest fzf and tenv.
   With tenv, Terraform/OpenTofu/Terragrunt versions are installed on first use.
 
 The listed CLI tools are installed only on Debian/Ubuntu with root or passwordless sudo.
