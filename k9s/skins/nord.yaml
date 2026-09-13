@@ -99,7 +99,6 @@ k9s:
       bgColor: default
       cursorColor: *current_line
       graphicColor: *magenta
-      showIcons: false
     # YAML info styles.
     yaml:
       keyColor: *blue
@@ -114,8 +113,6 @@ k9s:
         bgColor: *magenta
         toggleOnColor: *magenta
         toggleOffColor: *blue
-    help:
-      fgColor: *foreground
-      bgColor: *background
-      indicator:
-        fgColor: *red
+  help:
+    fgColor: *foreground
+    bgColor: *background

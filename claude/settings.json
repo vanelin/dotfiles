@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "outputStyle": "Concise",
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "xhigh",
+  "permissions": {
+    "defaultMode": "auto",
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(curl * | bash*)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/credentials*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "npx -y ccstatusline@latest",
+    "padding": 0,
+    "refreshInterval": 10
+  },
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Cluster/IaC Apply [must name: the target environment (a cluster context, or a label the user uses for it such as staging or prod) AND the release, stack or namespace, with the user explicitly authorizing this action on it; mentioning a target in a question or diagnosis request is not authorization]: block kubectl apply/create/patch/replace/rollout, helm install/upgrade/rollback, argocd app sync, flux reconcile, tofu/terraform/terragrunt apply, and wrapper scripts that do the same, against any non-local target. Locality is established only by an explicit --context, --kubeconfig or --profile in the command naming kind-*, minikube, docker-desktop, k3d-*, rancher-desktop, colima or orbstack; otherwise presume non-local. For Terraform the environment is the backend or account, never the workspace name. An environment+namespace pair the user explicitly authorized for this action clears further applies of the same kind to that exact pair for the session; it never clears deletes, and Blind Apply and Protected-Scope IaC Apply from $defaults still apply.",
+      "Infra Delete [must name: the target environment AND the exact resource or scope, with the user explicitly authorizing the deletion; mentioning a resource is not authorization]: block kubectl delete, kubectl scale --replicas=0, helm uninstall, and aws/gcloud/az delete/terminate/remove/purge verbs or equivalents. A selector, --all or glob is not itself a named target; it clears only when the user named a scope at least as broad as what it can match. Exempt only resources a prior tool_use in this transcript created, not ones inferred from naming or the agent narration."
+    ]
+  },
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "codex@openai-codex": true
+  }
+}

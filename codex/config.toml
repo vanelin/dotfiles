@@ -1,0 +1,13 @@
+# Defaults for new machines; runtime state stays in ~/.codex.
+
+model_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "xhigh"
+approvals_reviewer = "auto_review"
+
+[tui]
+status_line = ["model-with-reasoning", "approval-mode", "context-used", "weekly-limit", "project-name", "git-branch", "current-dir"]
+status_line_use_colors = true
+
+# setup registers the same MCP server for Claude.
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
