@@ -1,7 +1,7 @@
 # oh-my-zsh
 export ZSH="$HOME/.oh-my-zsh"
 
-ZSH_THEME="bureau"
+ZSH_THEME=""  # prompt comes from starship
 
 # History dates and size
 HIST_STAMPS="dd.mm.yyyy"
@@ -71,12 +71,6 @@ fi
 # kubectl plugins
 export PATH="${PATH}:${HOME}/.krew/bin"
 
-# Kubernetes context in the prompt
-if [ -f "$HOME/.oh-my-zsh/custom/plugins/kube-ps1/kube-ps1.sh" ]; then
-    source "$HOME/.oh-my-zsh/custom/plugins/kube-ps1/kube-ps1.sh"
-    PROMPT='$(kube_ps1)'$PROMPT
-fi
-
 # Optional tool completions
 [[ $commands[minikube] ]] && source <(minikube completion zsh)
 
@@ -91,6 +85,11 @@ fi
 # tenv: terraform / tofu / terragrunt version manager
 if [[ $commands[tenv] ]]; then
     source <(tenv completion zsh)
+fi
+
+# Starship prompt (config: ~/.config/starship.toml)
+if [[ $commands[starship] ]]; then
+    eval "$(starship init zsh)"
 fi
 
 # Local secrets and overrides, not in git
