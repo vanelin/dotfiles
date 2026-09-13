@@ -32,7 +32,9 @@ Start `zsh` afterward. To retry failed optional installs, rerun `bash setup` fro
 
 ## What you get
 
-- **Zsh:** Oh My Zsh, autosuggestions, syntax highlighting, fzf integration and Kubernetes prompt.
+- **Zsh:** [Starship](https://starship.rs) prompt (`starship.toml`, same as on the Mac, with git, Kubernetes,
+  AWS and language modules), Oh My Zsh, autosuggestions, syntax highlighting and fzf integration.
+  The prompt uses Nerd Font glyphs: in Codespaces set VS Code `terminal.integrated.fontFamily` to `Hack Nerd Font`.
   Shortcuts include `k` (kubectl), `h` (Helm) and `tf` (OpenTofu).
 - **Vim and tmux:** syntax plugins, persistent undo, mouse support and vi-style copy mode.
 - **k9s:** Nord skin.
@@ -65,7 +67,7 @@ Claude defaults to auto mode; review its [permissions](claude/settings.json) bef
 
 ## Customizing
 
-- Shell/editor configs, shared agent rules, k9s skin and ccstatusline settings are **symlinked**.
+- Shell/editor configs, `starship.toml`, shared agent rules, k9s skin and ccstatusline settings are **symlinked**.
   Edit them in the repo, then reload the relevant app or shell.
 - [Claude settings](claude/settings.json), [Claude instructions](claude/CLAUDE.md) and
   [Codex config](codex/config.toml) are **copied only when missing**. Apply later changes to existing copies manually.

@@ -26,6 +26,7 @@ ln -sf "$PWD/.tmux.conf" "$HOME"/.tmux.conf
 ln -sf "$PWD/.vimrc" "$HOME"/.vimrc
 ln -sf "$PWD/.zshrc" "$HOME"/.zshrc
 ln -sf "$PWD/.zshenv" "$HOME"/.zshenv
+ln -sf "$PWD/starship.toml" "$XDG_CONFIG_HOME"/starship.toml
 
 # Install oh-my-zsh if not already installed
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -47,11 +48,11 @@ if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
     git clone https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
 fi
 
-# kube-ps1 (optional, for Kubernetes prompt)
-if [ ! -d "$ZSH_CUSTOM/plugins/kube-ps1" ]; then
-    echo "Installing kube-ps1 plugin..."
-    git clone https://github.com/jonmosco/kube-ps1.git "$ZSH_CUSTOM/plugins/kube-ps1" \
-        || echo "Warning: kube-ps1 installation failed, continuing"
+# Starship prompt, same config as on the Mac. No sudo: binary goes to ~/.local/bin.
+if ! command -v starship &> /dev/null; then
+    echo "Installing starship..."
+    curl -fsSL https://starship.rs/install.sh | sh -s -- -y -b "$HOME/.local/bin" \
+        || echo "Warning: starship installation failed, continuing"
 fi
 
 # Optional AI agents: installation failures must not block personal configuration.
