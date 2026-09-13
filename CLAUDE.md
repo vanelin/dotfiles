@@ -22,6 +22,7 @@ See `README.md` for installation instructions and `setup` for the current tool l
   `GITHUB_TOKEN` to `TENV_GITHUB_TOKEN`; `.zshrc` sources `~/.zshrc.local` for secrets (gitignored).
 - `starship.toml`: prompt, linked to `~/.config/starship.toml`; `setup` installs starship to `~/.local/bin`
   and `.zshrc` sets `ZSH_THEME=""`. Custom modules are gated by `STARSHIP_COCKPIT_*` env vars (off by default).
+- `asciinema/config.toml`: record with zsh, cap idle time at 2s; linked to `~/.config/asciinema/`. `setup` installs asciinema 3.x from GitHub, not apt (2.x, different config format).
 - `.vimrc`, `.tmux.conf`, `k9s/skins/nord.yaml`: editor, terminal and Kubernetes UI (skin selected via `K9S_SKIN` in `.zshrc`).
 - These files are symlinked by `setup`; edit their repository sources.
 - `agents/AGENTS.md`: shared agent rules. `setup` links it to `~/.agents/AGENTS.md`

@@ -15,7 +15,7 @@ echo "Setting up dotfiles..."
 # Create directories
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export PATH="$HOME/.local/bin:$PATH"
-mkdir -p "$XDG_CONFIG_HOME"/k9s/skins
+mkdir -p "$XDG_CONFIG_HOME"/k9s/skins "$XDG_CONFIG_HOME"/asciinema
 mkdir -p "$HOME"/.vim/undo
 mkdir -p "$HOME"/.local/bin
 
@@ -27,6 +27,7 @@ ln -sf "$PWD/.vimrc" "$HOME"/.vimrc
 ln -sf "$PWD/.zshrc" "$HOME"/.zshrc
 ln -sf "$PWD/.zshenv" "$HOME"/.zshenv
 ln -sf "$PWD/starship.toml" "$XDG_CONFIG_HOME"/starship.toml
+ln -sf "$PWD/asciinema/config.toml" "$XDG_CONFIG_HOME"/asciinema/config.toml
 
 # Install oh-my-zsh if not already installed
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
@@ -119,7 +120,7 @@ esac
 if command -v apt-get &> /dev/null && { [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/null; }; then
     echo "Installing apt packages..."
     as_root apt-get update &&
-        as_root apt-get install -y ripgrep gh gcc g++ unzip fd-find curl ca-certificates vim fontconfig kubectx tmux shellcheck yq asciinema \
+        as_root apt-get install -y ripgrep gh gcc g++ unzip fd-find curl ca-certificates vim fontconfig kubectx tmux shellcheck yq \
         || echo "Warning: APT package installation failed, continuing"
 
     # Create symlink for fd (fd-find package installs as fdfind)
@@ -164,6 +165,16 @@ if command -v apt-get &> /dev/null && { [ "$EUID" -eq 0 ] || sudo -n true 2>/dev
         echo "Installing fzf ${FZF_VERSION}..."
         curl -fsSL "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_${ARCH}.tar.gz" | tar -xz -C "$HOME/.local/bin" fzf \
             || echo "Warning: fzf installation failed, continuing"
+    fi
+
+    # asciinema 3.x from the GitHub release (apt ships 2.x, which reads a different config format)
+    if ! command -v asciinema &> /dev/null; then
+        echo "Installing asciinema..."
+        case "$ARCH" in amd64) A_ARCH=x86_64 ;; *) A_ARCH=aarch64 ;; esac
+        curl -fsSLo "$HOME/.local/bin/asciinema" "https://github.com/asciinema/asciinema/releases/latest/download/asciinema-${A_ARCH}-unknown-linux-gnu" &&
+            chmod +x "$HOME/.local/bin/asciinema" &&
+            echo "asciinema installed: $(asciinema --version)" \
+            || echo "Warning: asciinema installation failed, continuing"
     fi
 
     # Install tflint if not already installed
