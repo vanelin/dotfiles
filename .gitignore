@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Editors
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Local overrides and secrets (never commit)
+*.local
+*.local.*
+.env
+.env.*
+*.pem
+*.key
+
+# Claude Code / Codex local state
+.claude/settings.local.json
+.claude/*.local.md

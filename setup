@@ -1,28 +1,36 @@
 #!/bin/bash
 
-set -e
+set -eo pipefail
+cd "$(dirname "${BASH_SOURCE[0]}")"
+
+# Run as root directly when already root (no sudo in some containers)
+as_root() { if [ "$EUID" -eq 0 ]; then "$@"; else sudo "$@"; fi; }
+
+for dep in curl git zsh; do
+    command -v "$dep" &> /dev/null || { echo "Missing required tool: $dep"; exit 1; }
+done
 
 echo "Setting up dotfiles..."
 
 # Create directories
-export XDG_CONFIG_HOME="$HOME"/.config
-mkdir -p "$XDG_CONFIG_HOME"/bash
-mkdir -p "$XDG_CONFIG_HOME"/k9s
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+export PATH="$HOME/.local/bin:$PATH"
+mkdir -p "$XDG_CONFIG_HOME"/k9s/skins
+mkdir -p "$HOME"/.vim/undo
 mkdir -p "$HOME"/.local/bin
 
 # Create symbolic links
 echo "Creating symbolic links..."
-ln -sf "$PWD/k9s/skin.yml" "$XDG_CONFIG_HOME"/k9s/skin.yml
+ln -sf "$PWD/k9s/skins/nord.yaml" "$XDG_CONFIG_HOME"/k9s/skins/nord.yaml
 ln -sf "$PWD/.tmux.conf" "$HOME"/.tmux.conf
 ln -sf "$PWD/.vimrc" "$HOME"/.vimrc
 ln -sf "$PWD/.zshrc" "$HOME"/.zshrc
 ln -sf "$PWD/.zshenv" "$HOME"/.zshenv
-ln -sf "$PWD/.zprofile" "$HOME"/.zprofile
 
 # Install oh-my-zsh if not already installed
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "Installing oh-my-zsh..."
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended --keep-zshrc
 fi
 
 # Install zsh plugins
@@ -42,35 +50,53 @@ fi
 # kube-ps1 (optional, for Kubernetes prompt)
 if [ ! -d "$ZSH_CUSTOM/plugins/kube-ps1" ]; then
     echo "Installing kube-ps1 plugin..."
-    git clone https://github.com/jonmosco/kube-ps1.git "$ZSH_CUSTOM/plugins/kube-ps1"
+    git clone https://github.com/jonmosco/kube-ps1.git "$ZSH_CUSTOM/plugins/kube-ps1" \
+        || echo "Warning: kube-ps1 installation failed, continuing"
 fi
 
-# Install vim-plug if not already installed
-if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
-    echo "Installing vim-plug..."
-    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+# Optional AI agents: installation failures must not block personal configuration.
+if ! command -v claude &> /dev/null; then
+    echo "Installing Claude Code..."
+    curl -fsSL https://claude.ai/install.sh | bash \
+        || echo "Warning: Claude Code installation failed, continuing"
 fi
 
-# Install vim plugins
-echo "Installing vim plugins..."
-vim +PlugInstall +qall || true
+if ! command -v codex &> /dev/null; then
+    echo "Installing Codex CLI..."
+    curl -fsSL https://chatgpt.com/codex/install.sh | sh \
+        || echo "Warning: Codex installation failed, continuing"
+fi
 
-# Install Hack Nerd Font if not already installed
-if [ ! -d "$HOME/.local/share/fonts" ] || [ ! -f "$HOME/.local/share/fonts/Hack Regular Nerd Font Complete.ttf" ]; then
-    echo "Installing Hack Nerd Font..."
-    mkdir -p "$HOME/.local/share/fonts"
-    cd "$HOME/.local/share/fonts"
-    curl -fLo "Hack Regular Nerd Font Complete.ttf" \
-        https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Hack/Regular/HackNerdFont-Regular.ttf
-    curl -fLo "Hack Bold Nerd Font Complete.ttf" \
-        https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Hack/Bold/HackNerdFont-Bold.ttf
-    curl -fLo "Hack Italic Nerd Font Complete.ttf" \
-        https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Hack/Italic/HackNerdFont-Italic.ttf
-    curl -fLo "Hack Bold Italic Nerd Font Complete.ttf" \
-        https://github.com/ryanoasis/nerd-fonts/raw/master/patched-fonts/Hack/BoldItalic/HackNerdFont-BoldItalic.ttf
-    fc-cache -fv || true
-    cd -
+# Shared agent instructions: Codex reads the symlink, Claude imports it from claude/CLAUDE.md.
+mkdir -p "$HOME/.agents" "$HOME/.claude" "$HOME/.codex"
+ln -sf "$PWD/agents/AGENTS.md" "$HOME/.agents/AGENTS.md"
+ln -sf "$HOME/.agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
+
+# Claude/Codex configs: copy only if missing. Both CLIs rewrite them, a symlink would leak that into git.
+for f in claude/settings.json claude/CLAUDE.md codex/config.toml; do
+    target="$HOME/.${f}"
+    if [ ! -e "$target" ]; then
+        cp "$PWD/$f" "$target"
+    fi
+done
+
+# ccstatusline layout (status line command lives in claude/settings.json)
+# ccstatusline reads ~/.config regardless of XDG_CONFIG_HOME
+mkdir -p "$HOME/.config/ccstatusline"
+ln -sf "$PWD/ccstatusline/settings.json" "$HOME/.config/ccstatusline/settings.json"
+
+# MCP: Codex has context7 in config.toml; Claude stores it in ~/.claude.json, so add via CLI.
+if command -v claude &> /dev/null && ! claude mcp get context7 &> /dev/null; then
+    echo "Registering context7 MCP server for Claude Code..."
+    claude mcp add --scope user --transport http context7 https://mcp.context7.com/mcp \
+        || echo "Warning: Context7 registration failed, continuing"
+fi
+
+# Codex plugin for Claude Code (/codex:review, /codex:rescue); declared in claude/settings.json, installed here
+if command -v claude &> /dev/null && ! claude plugin list 2>/dev/null | grep -q "codex@openai-codex"; then
+    echo "Installing codex plugin for Claude Code..."
+    claude plugin marketplace add openai/codex-plugin-cc && claude plugin install codex@openai-codex \
+        || echo "Warning: codex plugin install failed, continuing"
 fi
 
 # Detect system architecture
@@ -89,10 +115,11 @@ case $ARCH in
 esac
 
 # Install packages (optional, skip if not sudo or packages already installed)
-if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/null; then
+if command -v apt-get &> /dev/null && { [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/null; }; then
     echo "Installing apt packages..."
-    sudo apt-get update
-    sudo apt-get install -y ripgrep gh gcc g++ unzip fd-find fzf curl apt-transport-https ca-certificates gnupg vim kubectx tmux shellcheck yq || true
+    as_root apt-get update &&
+        as_root apt-get install -y ripgrep gh gcc g++ unzip fd-find curl ca-certificates vim fontconfig kubectx tmux shellcheck yq asciinema \
+        || echo "Warning: APT package installation failed, continuing"
 
     # Create symlink for fd (fd-find package installs as fdfind)
     if command -v fdfind &> /dev/null && ! command -v fd &> /dev/null; then
@@ -100,71 +127,82 @@ if command -v apt-get &> /dev/null && [ "$EUID" -eq 0 ] || sudo -n true 2>/dev/n
         ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
     fi
 
-    # # Install kubectl if not already installed
-    # if ! command -v kubectl &> /dev/null; then
-    #     echo "Installing kubectl for $ARCH..."
-    #     KUBECTL_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
-    #     curl -LO "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
-    #     sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-    #     rm kubectl
-    #     echo "kubectl installed: $(kubectl version --client --short 2>/dev/null || kubectl version --client)"
-    # fi
-
-    # # Install helm if not already installed
-    # if ! command -v helm &> /dev/null; then
-    #     echo "Installing helm..."
-    #     curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
-    #     echo "helm installed: $(helm version --short)"
-    # fi
-
     # Install uv (Python package manager) if not already installed
     if ! command -v uv &> /dev/null; then
         echo "Installing uv..."
-        curl -LsSf https://astral.sh/uv/install.sh | sh
-        echo "uv installed (restart shell to use): $(~/.local/bin/uv --version 2>/dev/null || echo 'installed')"
+        curl -LsSf https://astral.sh/uv/install.sh | sh &&
+            echo "uv installed (restart shell to use): $(~/.local/bin/uv --version 2>/dev/null || echo 'installed')" \
+            || echo "Warning: uv installation failed, continuing"
     fi
 
     # Install k9s if not already installed
     if ! command -v k9s &> /dev/null; then
         echo "Installing k9s..."
-        ARCH=$(dpkg --print-architecture 2>/dev/null || echo "amd64")
-        wget -q "https://github.com/derailed/k9s/releases/latest/download/k9s_linux_${ARCH}.deb"
-        sudo apt install -y "./k9s_linux_${ARCH}.deb"
-        rm "k9s_linux_${ARCH}.deb"
-        echo "k9s installed: $(k9s version --short 2>/dev/null || k9s version)"
+        curl -fsSLO "https://github.com/derailed/k9s/releases/latest/download/k9s_linux_${ARCH}.deb" &&
+            as_root apt install -y "./k9s_linux_${ARCH}.deb" &&
+            rm "k9s_linux_${ARCH}.deb" &&
+            echo "k9s installed: $(k9s version --short 2>/dev/null || k9s version)" \
+            || echo "Warning: k9s installation failed, continuing"
     fi
 
-    # Install Terraform if not already installed
-    if ! command -v terraform &> /dev/null; then
-        echo "Installing Terraform..."
-        wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-        sudo apt-get update
-        sudo apt-get install -y terraform
-        echo "Terraform installed: $(terraform version)"
-        echo "Installing Terraform zsh completion..."
-        terraform -install-autocomplete 2>/dev/null || true
+    # tenv manages terraform, tofu and terragrunt versions (shims auto-install on first use)
+    if ! command -v tenv &> /dev/null; then
+        echo "Installing tenv..."
+        TENV_VERSION=$(curl -fsSL ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} https://api.github.com/repos/tofuutils/tenv/releases/latest | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/') &&
+            curl -fsSLO "https://github.com/tofuutils/tenv/releases/download/${TENV_VERSION}/tenv_${TENV_VERSION}_${ARCH}.deb" &&
+            as_root apt install -y "./tenv_${TENV_VERSION}_${ARCH}.deb" &&
+            rm "tenv_${TENV_VERSION}_${ARCH}.deb" &&
+            echo "tenv installed: $(tenv version)" \
+            || echo "Warning: tenv installation failed, continuing"
+    fi
+
+    # fzf from the GitHub release: apt's version often predates --zsh (0.48), which .zshrc relies on
+    FZF_VERSION=$(curl -fsSL ${GITHUB_TOKEN:+-H "Authorization: Bearer $GITHUB_TOKEN"} https://api.github.com/repos/junegunn/fzf/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/') \
+        || { FZF_VERSION=""; echo "Warning: could not query fzf release, keeping installed fzf"; }
+    if [ -n "$FZF_VERSION" ] && [ "$(fzf --version 2>/dev/null | cut -d' ' -f1)" != "$FZF_VERSION" ]; then
+        echo "Installing fzf ${FZF_VERSION}..."
+        curl -fsSL "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_${ARCH}.tar.gz" | tar -xz -C "$HOME/.local/bin" fzf \
+            || echo "Warning: fzf installation failed, continuing"
     fi
 
     # Install tflint if not already installed
     if ! command -v tflint &> /dev/null; then
         echo "Installing tflint..."
-        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
-        echo "tflint installed: $(tflint --version)"
+        curl -fsSLo /tmp/tflint.zip "https://github.com/terraform-linters/tflint/releases/latest/download/tflint_linux_${ARCH}.zip" &&
+            unzip -oq /tmp/tflint.zip -d "$HOME/.local/bin" &&
+            rm /tmp/tflint.zip &&
+            echo "tflint installed: $(tflint --version)" \
+            || echo "Warning: tflint installation failed, continuing"
     fi
+fi
 
-    # Install Terragrunt if not already installed
-    if ! command -v terragrunt &> /dev/null; then
-        echo "Installing Terragrunt..."
-        TERRAGRUNT_VERSION=$(curl -s https://api.github.com/repos/gruntwork-io/terragrunt/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-        wget -q "https://github.com/gruntwork-io/terragrunt/releases/download/v${TERRAGRUNT_VERSION}/terragrunt_linux_${ARCH}" -O terragrunt
-        chmod +x terragrunt
-        sudo mv terragrunt /usr/local/bin/terragrunt
-        echo "Terragrunt installed: $(terragrunt --version)"
-        echo "Installing Terragrunt zsh completion..."
-        terragrunt --install-autocomplete 2>/dev/null || true
-    fi
+# Vim plugins and fonts, after apt so vim and fc-cache exist on minimal images
+# Install vim-plug if not already installed
+if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
+    echo "Installing vim-plug..."
+    curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim \
+        || echo "Warning: vim-plug installation failed, continuing"
+fi
+
+# Install vim plugins
+echo "Installing vim plugins..."
+command -v vim &> /dev/null && vim +PlugInstall +qall || echo "Warning: Vim plugin setup failed or vim is unavailable, continuing"
+
+# Install Hack Nerd Font if not already installed
+if [ ! -f "$HOME/.local/share/fonts/HackNerdFont-Regular.ttf" ]; then
+    echo "Installing Hack Nerd Font..."
+    mkdir -p "$HOME/.local/share/fonts"
+    (
+    curl -fsSLo /tmp/Hack.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip
+    unzip -oq /tmp/Hack.zip "*.ttf" -d "$HOME/.local/share/fonts" && rm /tmp/Hack.zip
+    fc-cache -f || true
+    ) || echo "Warning: font install failed, continuing"
 fi
 
 echo "Dotfiles setup complete!"
 echo "Run 'zsh' or restart your terminal to apply changes"
+if [ -n "${CODESPACES:-}" ]; then
+    echo "Auth: set CLAUDE_CODE_OAUTH_TOKEN (from 'claude setup-token' locally) as a Codespaces secret, or run 'claude' -> /login"
+    echo "      run 'codex login --device-auth' for Codex"
+fi

@@ -45,7 +45,8 @@ Plug 'sheerun/vim-polyglot'
 call plug#end()
 
 " Keep undo history across sessions, by storing in file.
-set undodir=/tmp/.vim/backups
+set undodir=~/.vim/undo
+if !isdirectory(expand(&undodir)) | call mkdir(expand(&undodir), "p") | endif
 set undofile
 
 " edit indentLine

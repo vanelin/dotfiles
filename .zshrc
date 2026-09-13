@@ -1,29 +1,15 @@
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
-# Path to your oh-my-zsh installation.
+# oh-my-zsh
 export ZSH="$HOME/.oh-my-zsh"
 
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="bureau"
 
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
+# History dates and size
 HIST_STAMPS="dd.mm.yyyy"
 
-# History settings
-HISTSIZE=2000
-SAVEHIST=2000
+HISTSIZE=3000
+SAVEHIST=3000
 
-# Which plugins would you like to load?
-# Standard plugins can be found in ~/.oh-my-zsh/plugins/*
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
+# Bundled and custom plugins
 plugins=(
     golang
     git
@@ -43,8 +29,7 @@ plugins=(
 
 source $ZSH/oh-my-zsh.sh
 
-# User specific aliases and functions
-# enable color support of ls and also add handy aliases
+# GNU command colors
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
@@ -55,61 +40,58 @@ fi
 export EDITOR='vim'
 
 export LESS='-R'
-export LESSOPEN='|~/.lessfilter %s'
 
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
+# Personal aliases override plugin defaults.
 alias zshconfig="vim ~/.zshrc"
 alias ohmyzsh="vim ~/.oh-my-zsh"
 
 function cht { curl "cht.sh/$1"; }
 
-# some more ls aliases
 alias ll='ls -lht'
 alias la='ls -lhFtA'
 alias l='ls -CF'
+alias tf=tofu
 
-# Enable autocompletion kubectl
+# kubectl aliases and completion
 if [[ $commands[kubectl] ]]; then
     source <(kubectl completion zsh)
     alias k=kubectl
     alias kc='kubectx'
     alias kn='kubens'
-    complete -F __start_kubectl k
+    compdef k=kubectl
 fi
 
-# Enable autocompletion helm
+# Helm alias and completion
 if [[ $commands[helm] ]]; then
     source <(helm completion zsh)
     alias h=helm
-    complete -F __start_helm h
+    compdef h=helm
 fi
 
-# Enable krew plugin manager for kubectl
+# kubectl plugins
 export PATH="${PATH}:${HOME}/.krew/bin"
 
-# Enable kube_ps1 if available
+# Kubernetes context in the prompt
 if [ -f "$HOME/.oh-my-zsh/custom/plugins/kube-ps1/kube-ps1.sh" ]; then
     source "$HOME/.oh-my-zsh/custom/plugins/kube-ps1/kube-ps1.sh"
     PROMPT='$(kube_ps1)'$PROMPT
 fi
 
-# Enable autocompletion
+# Optional tool completions
 [[ $commands[minikube] ]] && source <(minikube completion zsh)
 
-# Enable uv and uvx completions
-if [[ $commands[uv] ]]; then
-    eval "$(uv generate-shell-completion zsh)"
-fi
-if [[ $commands[uvx] ]]; then
-    eval "$(uvx --generate-shell-completion zsh)"
+
+if [[ $commands[k9s] ]]; then
+    alias kk="EDITOR='code --wait' k9s"
+    source <(k9s completion zsh)
+    export K9S_CONFIG_DIR="$HOME/.config/k9s"  # same dir on macOS and Linux, where setup puts the skin
+    export K9S_SKIN=nord
 fi
 
-# Enable k9s completion
-if [[ $commands[k9s] ]]; then
-    source <(k9s completion zsh)
+# tenv: terraform / tofu / terragrunt version manager
+if [[ $commands[tenv] ]]; then
+    source <(tenv completion zsh)
 fi
+
+# Local secrets and overrides, not in git
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

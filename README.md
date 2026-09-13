@@ -1,106 +1,74 @@
 # Dotfiles
 
-Personal dotfiles for Unix/Linux environments with automatic setup for GitHub Codespaces.
+Personal shell, editor and AI-agent configuration for macOS, Linux and GitHub Codespaces.
 
-## Features
+## Install
 
-- **zsh** configuration with oh-my-zsh (bureau theme)
-- **vim** setup with vim-plug and plugins
-- **tmux** configuration with vi-mode
-- **fd** (fd-find) fast file finder with proper symlink for Ubuntu/Debian
-- **k9s** Kubernetes CLI with Nord theme (auto-installed in Codespaces)
-- **uv** Python package manager (auto-installed in Codespaces)
-- **Kubernetes tools** aliases and completions (kubectl, helm, kubectx, kubens)
-- **Multi-architecture support** (amd64/arm64)
+Requires `curl`, `git`, `zsh` and internet access. `setup` replaces existing shell/editor
+configuration files with symlinks to this checkout.
 
-## Quick Start
+### Codespaces
 
-### GitHub Codespaces
+Enable **Automatically install dotfiles** in [Codespaces settings](https://github.com/settings/codespaces)
+and select this repo. GitHub runs `install.sh` in new Codespaces; existing ones are not updated automatically.
 
-**Recommended Setup:**
+Keep VS Code preferences in Settings Sync and project dependencies in `devcontainer.json`,
+as described in [GitHub's personalization guide](https://docs.github.com/en/codespaces/setting-your-user-preferences/personalizing-github-codespaces-for-your-account).
 
-1. Go to [GitHub Codespaces Settings](https://github.com/settings/codespaces)
-2. Enable "Automatically install dotfiles"
-3. Select your dotfiles repository
-4. Create any Codespace from any project - dotfiles will install automatically
-
-**VS Code Configuration:**
-- Use **Settings Sync** to synchronize VS Code settings, extensions, and keybindings across all Codespaces
-- For project-specific extensions and settings, create `.devcontainer/devcontainer.json` in each project repository
-
-After setup completes, run:
-```bash
-zsh
-```
-
-### Local Installation
+### Local
 
 ```bash
 git clone https://github.com/vanelin/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./setup
+bash ~/.dotfiles/setup
 ```
 
-After setup completes:
-```bash
-zsh
-```
-
-### Remote Installation
+Or let the installer clone the repo:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vanelin/dotfiles/main/install.sh | bash
-cd ~/.dotfiles
-zsh
 ```
 
-## What's Included
+Start `zsh` afterward. To retry failed optional installs, rerun `bash setup` from the checkout.
 
-### Shell Configuration
-- oh-my-zsh with plugins: git, github, docker, golang, terraform, colorize, colored-man-pages
-- zsh-autosuggestions and zsh-syntax-highlighting
-- kubectl completions and aliases: `k` (kubectl), `kc` (kubectx), `kn` (kubens)
-- helm completion with `h` alias
-- kube_ps1 prompt integration (shows Kubernetes context in prompt)
-- krew plugin manager support
-- Terraform, terragrunt completions and aliases (e.g., `tf`, `tfa`, `tfp`, `tfi`)
-- Python tooling: uv and uvx completions
-- FZF fuzzy finder with key bindings (Ctrl+R for history, Ctrl+T for files, Alt+C for cd)
-- fd (fast file finder, symlinked from fdfind on Ubuntu/Debian)
-- Custom function: `cht` for accessing cht.sh
+## What you get
 
-### Editor Configuration
-- vim with vim-plug
-- indentLine and vim-polyglot plugins
-- 4-space tabs (2-space for YAML)
-- Persistent undo history
+- **Zsh:** Oh My Zsh, autosuggestions, syntax highlighting, fzf integration and Kubernetes prompt.
+  Shortcuts include `k` (kubectl), `h` (Helm) and `tf` (OpenTofu).
+- **Vim and tmux:** syntax plugins, persistent undo, mouse support and vi-style copy mode.
+- **k9s:** Nord skin.
+- **CLI tools:** ripgrep, fd, gh, yq, shellcheck, kubectx, uv, k9s, tflint, latest fzf and tenv.
+  With tenv, Terraform/OpenTofu/Terragrunt versions are installed on first use.
 
-### Terminal Multiplexer
-- tmux with vi-mode for copy
-- Mouse support enabled
-- Custom status bar with pomo integration
-- Reload config: `prefix + r`
+The listed CLI tools are installed only on Debian/Ubuntu with root or passwordless sudo.
+Elsewhere, install those tools yourself (for example, with Homebrew on macOS).
+`setup` does not install kubectl or Helm; provide them through your project environment.
+See [setup](setup) for the full installation list.
 
-### Development Tools (Auto-installed)
-- **Kubernetes**: k9s (CLI dashboard), kubectx, kube-ps1
-- **Infrastructure as Code**: Terraform, terragrunt, tflint
-- **Python**: uv (package manager)
-- **CLI Tools**: fd (file finder), fzf (fuzzy finder), ripgrep, gh (GitHub CLI), shellcheck, yq
+## AI agents
 
-## Customization
+Claude Code and Codex CLI use standalone installers. Both get [shared rules](agents/AGENTS.md)
+and Context7 MCP for library documentation. Claude also gets ccstatusline and the
+[Codex plugin](https://github.com/openai/codex-plugin-cc) (`/codex:review`).
 
-All configuration files are symlinked from this repository. To customize:
+The status line and plugin need Node.js/npm, already included in the
+[Codespaces universal image](https://github.com/devcontainers/images/blob/main/src/universal/.devcontainer/devcontainer.json).
 
-1. Edit files in the repository
-2. Changes take effect immediately (or reload: `source ~/.zshrc` / `:source ~/.vimrc` / `prefix + r`)
+Sign in, then run `claude` or `codex` from your project directory:
 
-## Files
+- **Claude:** launch `claude` and use `/login`. Alternatively, run `claude setup-token` locally
+  and save its output as the `CLAUDE_CODE_OAUTH_TOKEN` Codespaces secret.
+  See [authentication](https://code.claude.com/docs/en/authentication).
+- **Codex:** run `codex login --device-auth` for browser login from a Codespace.
+  Enable device-code login first as described in [authentication](https://learn.chatgpt.com/docs/auth#login-on-headless-devices).
 
-- `.zshrc` - zsh configuration
-- `.zshenv` - PATH configuration
-- `.zprofile` - Login shell configuration
-- `.vimrc` - vim configuration
-- `.tmux.conf` - tmux configuration
-- `k9s/skin.yml` - k9s Nord theme
-- `setup` - Main installation script
-- `install.sh` - Remote installation script
+Claude defaults to auto mode; review its [permissions](claude/settings.json) before using infrastructure credentials.
+
+## Customizing
+
+- Shell/editor configs, shared agent rules, k9s skin and ccstatusline settings are **symlinked**.
+  Edit them in the repo, then reload the relevant app or shell.
+- [Claude settings](claude/settings.json), [Claude instructions](claude/CLAUDE.md) and
+  [Codex config](codex/config.toml) are **copied only when missing**. Apply later changes to existing copies manually.
+
+Put secrets and machine-specific shell overrides in `~/.zshrc.local` (loaded by Zsh)
+or Codespaces Secrets. Never commit credentials.

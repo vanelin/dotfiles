@@ -1,125 +1,67 @@
-# CLAUDE.md
+# Dotfiles
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Personal shell, editor and AI agent configuration for local machines and GitHub Codespaces.
+See `README.md` for installation instructions and `setup` for the current tool list.
 
-## Repository Overview
+## Setup
 
-This is a personal dotfiles repository for managing Unix/Linux configuration files. The repository contains shell configurations (zsh), editor settings (vim, tmux), Kubernetes tooling configurations (k9s), and a setup script for installing dependencies and creating symbolic links.
+- `setup` changes into its own directory, so it can run from anywhere.
+- Codespaces runs `install.sh` (searched before `setup`); it runs `setup` from its own
+  checkout, and clones into `~/.dotfiles` only when piped from `curl`.
+- `setup` installs shell/editor dependencies and standalone Claude/Codex binaries;
+  APT tools are conditional on `apt-get` and root or passwordless sudo access.
+- AI binaries, configs, MCP and the codex plugin all run before the optional APT tools.
+- fzf is taken from the latest GitHub release, not APT, because the plugin needs `fzf --zsh` (0.48+).
+- Install kubectl and Helm through each project's devcontainer or manually.
+- Use Codespaces dotfiles settings for personal setup, Settings Sync for VS Code,
+  and each project's `devcontainer.json` for project dependencies.
 
-## Setup and Installation
+## Configuration
 
-### Local Machine Setup
+- `.zshrc`, `.zshenv`: shell and PATH configuration. `.zshenv` sets `TENV_AUTO_INSTALL` and maps
+  `GITHUB_TOKEN` to `TENV_GITHUB_TOKEN`; `.zshrc` sources `~/.zshrc.local` for secrets (gitignored).
+- `.vimrc`, `.tmux.conf`, `k9s/skins/nord.yaml`: editor, terminal and Kubernetes UI (skin selected via `K9S_SKIN` in `.zshrc`).
+- These files are symlinked by `setup`; edit their repository sources.
+- `agents/AGENTS.md`: shared agent rules. `setup` links it to `~/.agents/AGENTS.md`
+  and links `~/.codex/AGENTS.md` to that file. Edit shared rules only in this source.
+- `claude/CLAUDE.md`: Claude-specific instructions; imports `@~/.agents/AGENTS.md`.
+- `claude/settings.json`: Claude permissions, output style and status line (no model pinned: the plan default is used).
+  Starts in auto mode; `autoMode.soft_deny` adds infra apply/delete rules on top of `$defaults`.
+  Declares the `openai-codex` marketplace and enables the `codex` plugin (`/codex:review`, `/codex:rescue`); `setup` installs it via `claude plugin`.
+- `codex/config.toml`: portable Codex defaults and Context7 MCP configuration.
+- Claude files and Codex config are copied to `~/.claude/` and `~/.codex/` only
+  when missing. Repository edits do not update existing copies; preserve local changes.
+- `ccstatusline/settings.json`: symlinked to `~/.config/ccstatusline/settings.json`.
+  Claude runs it via `npx -y ccstatusline@latest`, which requires Node.js/npm.
+  Its interactive editor (`npx ccstatusline@latest`) writes through the symlink.
+- Context7 is declared in Codex config and registered for Claude with
+  `claude mcp add --scope user`; Claude stores user MCP servers in `~/.claude.json`.
 
-**Initial setup on a new machine:**
-```bash
-./setup
+## Editing
+
+- Keep changes focused and match existing style. Do not pin models or model-specific settings; they go stale.
+- Keep machine-specific state, credentials and project trust out of portable configs.
+- When adding a config, update `setup` and document its destination and dependencies.
+- Reload zsh with `source ~/.zshrc`, Vim with `:source ~/.vimrc`, and tmux with
+  `prefix + r` or `tmux source-file ~/.tmux.conf`.
+
+## Verification
+
+No test suite. Run relevant checks from the repository root:
+
+```sh
+for f in setup install.sh; do bash -n "$f"; done   # bash -n checks only its first argument
+shellcheck setup install.sh
+for f in .zshrc .zshenv; do zsh -n "$f"; done
+jq empty claude/settings.json ccstatusline/settings.json
+git diff --check
 ```
 
-This script will:
-- Create necessary directories (`$HOME/.config/bash`, `$HOME/.config/k9s`, `$HOME/.local/bin`)
-- Create symbolic links for configuration files
-- Install oh-my-zsh and required plugins (zsh-autosuggestions, zsh-syntax-highlighting, kube-ps1)
-- Install vim-plug and Vim plugins automatically
-- Install Hack Nerd Font for terminal
-- Install required packages via apt (ripgrep, gh, gcc, g++, unzip, fd-find, fzf, kubectx)
-- Create `fd` symlink for `fdfind` command (Ubuntu/Debian compatibility)
-- Install development tools:
-  - k9s (Kubernetes CLI)
-  - uv (Python package manager)
-  - Terraform (Infrastructure as Code tool)
-  - tflint (Terraform linter)
-  - Terragrunt (Terraform wrapper)
-- Configure zsh completions for installed tools
+Parse `codex/config.toml` with a TOML parser when changing it.
+Syntax checks do not verify bootstrap. For an end-to-end run, use a clean container
+(`mcr.microsoft.com/devcontainers/base:ubuntu` mirrors Codespaces; `ubuntu:24.04` covers root without sudo):
 
-**Note:** kubectl and helm can be installed via devcontainer features or manually. Dotfiles provide shell aliases and completions for them.
-
-### GitHub Codespaces Setup
-
-**Recommended: Use GitHub Dotfiles Settings**
-
-1. Go to https://github.com/settings/codespaces
-2. Enable "Automatically install dotfiles"
-3. Select this repository
-4. Create any Codespace - dotfiles will be installed automatically
-
-**VS Code Configuration:**
-- Use Settings Sync (built-in VS Code feature) to synchronize settings, extensions, and keybindings across all Codespaces
-- For project-specific extensions and settings, create `.devcontainer/devcontainer.json` in each project repository
-- Dotfiles handle only shell and terminal configuration (zsh, vim, tmux, kubectl, helm)
-
-**Manual installation in Codespaces or remote environments:**
-```bash
-curl -fsSL https://raw.githubusercontent.com/vanelin/dotfiles/main/install.sh | bash
+```sh
+docker run --rm -v "$PWD":/dotfiles:ro mcr.microsoft.com/devcontainers/base:ubuntu \
+  bash -c 'cp -r /dotfiles ~/d && ~/d/install.sh && zsh -ic "claude --version; codex --version; tenv version"'
 ```
-
-Or clone and run setup:
-```bash
-git clone https://github.com/vanelin/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./setup
-```
-
-After setup completes, switch to zsh:
-```bash
-zsh
-```
-
-**Note:** The setup script is designed to be idempotent and safe to run multiple times.
-
-## Configuration Files Structure
-
-### Shell Configuration
-- `.zshrc` - Main zsh configuration with oh-my-zsh (bureau theme)
-- `.zshenv` - PATH configuration for `~/bin` and `~/.local/bin`
-- `.zprofile` - Sources `.zshrc` on login
-
-**Key shell features:**
-- oh-my-zsh with plugins: golang, git, github, colorize, colored-man-pages, zsh-autosuggestions, zsh-syntax-highlighting, docker, terraform
-- Kubernetes tooling:
-  - Kubernetes prompt integration with `kube_ps1` (automatically enabled if installed)
-  - kubectl completions and aliases: `k` (kubectl), `kc` (kubectx), `kn` (kubens)
-  - helm completion with `h` alias (if helm is available)
-  - k9s completion (if k9s is installed)
-  - krew plugin manager enabled (`$HOME/.krew/bin` in PATH)
-- Infrastructure as Code tools:
-  - Terraform completion and aliases via oh-my-zsh plugin (e.g., `tf`, `tfa`, `tfp`, `tfi`)
-  - Terragrunt completion (if terragrunt is installed)
-- Python tooling:
-  - uv and uvx completions (if uv is installed)
-- FZF integration with key bindings (Ctrl+R, Ctrl+T, Alt+C)
-- Custom function: `cht` for accessing cht.sh (e.g., `cht python/list`)
-
-**Note:** The shell configuration gracefully handles missing commands (kubectl, helm, kube_ps1, minikube, k9s, terraform, terragrunt, uv). If these tools are not installed, the related features will be skipped without errors.
-
-### Editor Configuration
-- `.vimrc` - Vim configuration with vim-plug plugins (indentLine, vim-polyglot)
-  - 4-space tabs by default, 2-space for YAML
-  - Undo history persistence in `/tmp/.vim/backups`
-
-### Terminal Multiplexer
-- `.tmux.conf` - tmux configuration
-  - Vi-mode for copy mode
-  - Mouse support enabled
-  - Status bar at top with custom styling
-  - Panes start at index 1
-  - Custom status-right with `pomo` integration
-  - Reload config: `prefix + r`
-
-### Kubernetes Tooling
-- `k9s/skin.yml` - Nord theme for k9s Kubernetes CLI
-
-## Making Changes
-
-When modifying configuration files:
-1. Edit the file in this repository
-2. The symbolic links will automatically reflect changes (no need to re-run setup)
-3. For shell changes, either restart your shell or run `source ~/.zshrc`
-4. For vim changes, restart vim or run `:source ~/.vimrc`
-5. For tmux changes, reload with `prefix + r` (or `tmux source-file ~/.tmux.conf`)
-
-## Adding New Configurations
-
-To add a new configuration file:
-1. Add the file to the repository root (or appropriate subdirectory like `k9s/`)
-2. Update the `setup` script to create the symbolic link
-3. Document the configuration in this file if it has special behavior or dependencies
